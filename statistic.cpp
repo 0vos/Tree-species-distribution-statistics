@@ -21,7 +21,7 @@ string get_statistc(string* trees, int length){
 StaForest::StaForest(string *trees, int length){
     size = 0;
     for(size_t i=0;i<length;++i){
-        size_t end_pos = trees[i].find(" ", 0);
+        size_t end_pos = trees[i].find(",", 0);
         string name = trees[i].substr(0, end_pos - 0);
         if(!name.empty()){
             size++;
