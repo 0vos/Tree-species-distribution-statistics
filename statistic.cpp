@@ -9,18 +9,18 @@ class StaForest{
     size_t size;
     public:
     StaForest(): size(0){}
-    StaForest(string* trees);
+    StaForest(string* trees, int size);
     string statistic();
 };
 
-string get_statistc(string* trees){
-    StaForest forest = StaForest(trees);
+string get_statistc(string* trees, int size){
+    StaForest forest = StaForest(trees, size);
     return forest.statistic();
 }
 
-StaForest::StaForest(string *trees){
+StaForest::StaForest(string *trees, int size){
     size = 0;
-    for(size_t i=0;trees[i][0];++i){
+    for(size_t i=0;i<size;++i){
         size_t end_pos = trees[i].find(" ", 0);
         string name = trees[i].substr(0, end_pos - 0);
         if(!name.empty()){
