@@ -9,18 +9,18 @@ class StaForest{
     size_t size;
     public:
     StaForest(): size(0){}
-    StaForest(string* trees, int size);
+    StaForest(string* trees, int length);
     string statistic();
 };
 
-string get_statistc(string* trees, int size){
-    StaForest forest = StaForest(trees, size);
+string get_statistc(string* trees, int length){
+    StaForest forest = StaForest(trees, length);
     return forest.statistic();
 }
 
-StaForest::StaForest(string *trees, int size){
+StaForest::StaForest(string *trees, int length){
     size = 0;
-    for(size_t i=0;i<size;++i){
+    for(size_t i=0;i<length;++i){
         size_t end_pos = trees[i].find(" ", 0);
         string name = trees[i].substr(0, end_pos - 0);
         if(!name.empty()){
@@ -44,6 +44,7 @@ string StaForest::statistic(){
     for(auto it=forest.begin();it!=forest.end();++it){
         result += it->first;
         if(size){
+            cout << "name: " << it->first << "number: " << it->second << endl;
             double percent = 100 * (double(it->second) / double(size));
             result += " " + to_string(percent) + "%\n";
         }
