@@ -131,6 +131,7 @@ void remove(string filename){
         content+= c;
     }
     string re_move= "梧桐树,(40,55)";
+    re_move= re_move+'\n';
     //cin>>re_move;
     string position= search(content, re_move);
     int i= 0, j= 0, k= 0;
@@ -144,10 +145,8 @@ void remove(string filename){
         i++;
     }
     int number= stoi(position_of_same);
-    //cout<<number;
     string part1= content.substr(0, number);
     string part2= content.substr(number+re_move.size());
-    //cout<<part1<<part2;
     content= part1+part2;
     //cout<<content;
     ofstream ofile(filename);
