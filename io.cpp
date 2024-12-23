@@ -1,13 +1,11 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include"statistic.cpp"
+#include<codecvt>
+#include <locale>
 using namespace std;
-// void add(string p[], int number_of_trees){
-//     cout<<"请输入增加的树种和相应的坐标，格式例为：桦树，（30，45）"<<endl;
-//     string addition= "";
-//     cin>>addition;
-//     string *p= new string[number_of_trees+1];
-// }
+
 int count(string filename){
     ifstream file(filename);
     char c;
@@ -23,6 +21,26 @@ int count(string filename){
         cout<<"cannot open the file"<<endl;
     }
     return number_of_trees/2;
+}
+void add(string filename){
+    cout<<"上树,(99,99)"<<endl;
+    string addition= "";
+    cin>>addition;
+    string content= "";
+    ifstream ifile(filename);
+    char c;
+    while(ifile.get(c)){
+        content+= c;
+    }
+    content= content+'\n'+ addition;
+     
+    ofstream ofile(filename);
+    if(ofile.is_open()){
+        ofile<<content;
+    }else{
+        cout<<"cannot open the file"<<endl;
+    }
+
 }
 void read(string filename, string *p)
 {
@@ -47,7 +65,11 @@ int main(){
     string filename= "tree_info.txt";
     string *p= new string[count(filename)];
     read(filename, p);
-    for(int i=0; i<count(filename); i++){
-        cout<<p[i];
-    }
+    add(filename);
+    delete[]p;
+    //string final= get_statistc(p, count(filename));
+    //cout<<final<<endl;
+    // for(int i=0; i<count(filename); i++){
+    //     cout<<p[i];
+    // }
 }
