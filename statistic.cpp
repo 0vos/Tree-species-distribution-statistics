@@ -44,15 +44,20 @@ string StaForest::statistic(){
     for(auto it=forest.begin();it!=forest.end();++it){
         result += it->first;
         if(size){
-            cout << "name: " << it->first << "number: " << it->second << endl;
+            // cout << "name: " << it->first << "number: " << it->second << endl;
             double percent = 100 * (double(it->second) / double(size));
-            result += " " + to_string(percent) + "%\n";
+            result += " " + to_string(percent) + "%";
         }
         else{
             printf("树木总数为空！\n");
             exit(0);
         }
     }
+    result = result.substr(1);
+    size_t pos0 = result.rfind("%");
+    size_t pos1 = result.rfind("%", pos0 - 1);
+    result.insert(pos1+1, "\n");
+    cout << "result\n" << result << endl;
     return result;
 }
 
