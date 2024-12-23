@@ -61,6 +61,28 @@ void read(string filename, string *p)
     }
     
 }
+// 松树 3.1%\n桦树 3.6%\n
+string statistic_string2json(const string& input_string){
+    string json_string = "{";
+    for(size_t i=0;i<input_string.length();){
+        //树名
+        size_t start_pos = i;
+        json_string += "\"";
+        size_t end_name = input_string.find(" ", start_pos);
+        string name = input_string.substr(start_pos, end_name - start_pos);
+        json_string += name + "\":\"";
+        start_pos = end_name + 1;
+        //百分比
+        size_t end_percent = input_string.find("%", start_pos);
+        string percent = input_string.substr(start_pos, end_percent - start_pos);
+        json_string += percent + "\",";
+        i = end_percent + 2;
+    }
+    json_string.pop_back();
+    json_string += "}";
+    return json_string;
+}
+
 int main(){
     string filename= "tree_info.txt";
     string *p= new string[count(filename)];
@@ -73,3 +95,15 @@ int main(){
     //     cout<<p[i];
     // }
 }
+
+// int main(){
+//     string filename= "tree_info.txt";
+//     string *p= new string[count(filename)];
+//     read(filename, p);
+//     for(int i=0; i<count(filename); i++){
+//         cout<<p[i];
+//     }
+//     string s = "松树 3.1%\n桦树 3.6%\n";
+//     string json_result = statistic_string2json(s);
+//     cout << json_result << endl;
+// }
