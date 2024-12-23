@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Pie Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="myChart" width="400" height="400"></canvas>
+    <script>
+        // 获取数据并生成饼图
+        async function fetchDataAndRenderChart() {
+            try {
+                // 从 localhost:8888 获取数据
+                const response = await fetch('http://localhost:8888/statistic');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json(); // 解析 JSON
+
+                // 将数据转换为 Chart.js 所需的格式
+                const labels = Object.keys(data); // 提取树的名称
+                const values = Object.values(data).map(Number); // 提取百分比并转换为数字
+                const colors = labels.map(() => `#${Math.floor(Math.random() * 16777215).toString(16)}`); // 随机颜色
+
+                // 创建图表
+                const ctx = document.getElementById('myChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors
+                        }]
+                    },
+                    options: {
+                        onClick: (event, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const label = labels[index];
+                                const value = values[index];
+                                alert(`You clicked on ${label} (${value}%)`);
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching data or rendering chart:", error);
+            }
+        }
+
+        // 调用函数生成图表
+        fetchDataAndRenderChart();
+    </script>
+</body>
+</html>
