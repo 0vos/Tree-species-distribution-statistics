@@ -1,5 +1,6 @@
 #include "io.cpp"
 #include "statistic.cpp"
+#include <thread>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -10,9 +11,10 @@
 #include <cstring>
 
 #define PORT 8888
-const int BUFFER_SIZE = 2048;
+const int BUFFER_SIZE = 8192;
+std::atomic<bool> running(true);
 using namespace std;
-bool ends_with(const std::string& str, const std::string& suffix) {
+bool ends_with(const string& str, const string& suffix) {
     return str.size() >= suffix.size() && str.substr(str.size() - suffix.size()) == suffix;
 }
 // 根据文件扩展名获取 MIME 类型
@@ -32,7 +34,7 @@ void send_statistic(int client_socket) {
     read(file_name, trees);
     string raw = get_statistc(trees, count(file_name));
     string response_body = statistic_string2json(raw);
-    cout << response_body << endl;
+    // cout << response_body << endl;
     // 构造 HTTP 响应
     string http_response =
         "HTTP/1.1 200 OK\r\n"                              // 返回成功状态码
@@ -109,7 +111,8 @@ void serve_request(int client_socket, const string& request) {
     }
 }
 
-int main() {
+// 服务器主线程
+void server_thread() {
     int server_fd, new_socket;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
@@ -119,6 +122,7 @@ int main() {
         perror("Socket failed");
         exit(EXIT_FAILURE);
     }
+    std::cout << "Socket created successfully\n";
 
     // 设置服务器地址相关信息
     address.sin_family = AF_INET;
@@ -130,37 +134,62 @@ int main() {
         perror("Bind failed");
         exit(EXIT_FAILURE);
     }
+    std::cout << "Bind successful\n";
 
     // 开始监听端口，允许的最大连接队列长度为3
     if (listen(server_fd, 3) < 0) {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
+    std::cout << "Listening on port " << PORT << "\n";
 
+    // 循环接受请求
     while ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) >= 0) {
+        if(!running){
+            break;
+        }
         char buffer[BUFFER_SIZE];
         std::string request;
-        request.reserve(1024 * 1000);  // 预留一定空间，可按实际预估调整
+        request.reserve(1024 * 1000); // 预留空间，可按实际预估调整
         int valread;
-        do {
-            valread = read(new_socket, buffer, BUFFER_SIZE);
-            if (valread > 0) {
-                request.append(buffer, valread);
-            } else if (valread == -1) {
-                perror("Read error");
-                close(new_socket);
-                continue;
-            }
-        } while (valread == BUFFER_SIZE);
 
-        try {
-            std::cout << "request: " << request.length() << std::endl;
-            serve_request(new_socket, request);
-        } catch (...) {
-            std::cerr << "An error occurred while serving request" << std::endl;
-            // 关闭客户端套接字，释放相关资源
+        // 读取 HTTP 请求头和数据
+        while ((valread = read(new_socket, buffer, BUFFER_SIZE - 1)) > 0) {
+            buffer[valread] = '\0'; // 确保缓冲区以 null 结尾
+            request.append(buffer, valread);
+
+            // 检查是否包含完整的 HTTP 报文
+            auto header_end = request.find("\r\n\r\n");
+            if (header_end != std::string::npos) {
+                // HTTP 报文包含头部，检查 Content-Length
+                size_t content_length_pos = request.find("Content-Length: ");
+                if (content_length_pos != std::string::npos) {
+                    size_t start = content_length_pos + 16; // "Content-Length: " 长度
+                    size_t end = request.find("\r\n", start);
+                    int content_length = std::stoi(request.substr(start, end - start));
+                    size_t total_length = header_end + 4 + content_length; // 头部 + \r\n\r\n + 内容
+
+                    if (request.length() >= total_length) {
+                        break; // 接收完整
+                    }
+                } else {
+                    break; // 没有 Content-Length，默认认为是完整的
+                }
+            }
+        }
+
+        if (valread < 0) {
+            perror("Read error");
             close(new_socket);
             continue;
+        }
+
+        std::cout << "Request received. Length: " << request.length() << " bytes\n";
+
+        try {
+            serve_request(new_socket, request); // 调用处理函数
+        } catch (...) {
+            std::cerr << "An error occurred while serving the request\n";
         }
 
         request.clear();
@@ -168,6 +197,49 @@ int main() {
         close(new_socket);
     }
 
+    if (new_socket < 0) {
+        perror("Accept failed");
+        exit(EXIT_FAILURE);
+    }
+
     close(server_fd);
+}
+
+// 控制台输入线程
+void console_thread() {
+    string command;
+    while (running) {
+        string hint = "<----------树种统计程序---------->\n1. 查找一棵树\n2. 增加一棵树\n3. 删除一棵树\n4. 退出\n请输入功能对应的序号进行操作: ";
+        cout << hint << endl;
+        cin >> command;
+        if(command == "1"){
+            // 查找
+        }else if(command == "2"){
+            printf("请输入树名及坐标（示例：松树,(5,5)）其中逗号和括号使用英文字符：");
+            add("tree_info.txt");
+        }else if(command == "3"){
+            // 删除
+            remove_info("tree_info.txt");
+        }else if (command == "4") {
+            printf("正在退出...\n");
+            running = false; // 让服务器线程退出
+        } else {
+            cout << "Unknown command: " << command << endl;
+        }
+    }
+}
+
+int main() {
+    // 启动服务器线程
+    thread server(server_thread);
+
+    // 启动控制台输入线程
+    thread console(console_thread);
+
+    // 等待两个线程完成
+    console.join();
+    server.join();
+    printf("finish\n");
+
     return 0;
 }
