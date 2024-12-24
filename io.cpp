@@ -1,7 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
-#include"statistic.cpp"
+// #include"statistic.cpp"
 #include <locale>
 using namespace std;
 
@@ -22,7 +22,7 @@ int count(string filename){
     return number_of_trees/2;
 }
 void add(string filename){
-    cout<<"上树,(99,99)"<<endl;
+    // cout<<"上树,(99,99)"<<endl;
     string addition= "";
     cin>>addition;
     string content= "";
@@ -77,7 +77,10 @@ int repeat(int i, int j, int next[], string in_test){
     }
 }
 string search(string test, string in_test){
-    int next[in_test.size()]= {0};
+    int next[in_test.size()];
+    for(int i=0;i<in_test.size();++i){
+        next[i] = 0;
+    }
     int i=0, j=1;
     //计算next数组
     while(j<= in_test.size()){
@@ -122,7 +125,7 @@ string search(string test, string in_test){
     posion+= to_string(judge);
     return posion;
 }
-void remove(string filename){
+void remove_info(string filename){
     cout<<"请输入你想要删除的数据"<<endl;
     ifstream file(filename);
     char c;
@@ -153,21 +156,21 @@ void remove(string filename){
     ofile<<content;
     //return position;
 }
-int main(){
-    string filename= "tree_info.txt";
-    //string *p= new string[count(filename)];
-    string name;
-    //name= "松树,(75,92)";
-    remove(filename);
-    // scanf("%s", name);
-    // cout<<name;
-    // read(filename, p);
-    // add(filename);
-    //delete[]p;
-    //string final= get_statistc(p, count(filename));
-    //cout<<final<<endl;
-    // for(int i=0; i<count(filename); i++){
-    //     cout<<p[i];
-    // }
-    return 0;
-}
+// int main(){
+//     string filename= "tree_info.txt";
+//     //string *p= new string[count(filename)];
+//     string name;
+//     //name= "松树,(75,92)";
+//     remove(filename);
+//     // scanf("%s", name);
+//     // cout<<name;
+//     // read(filename, p);
+//     // add(filename);
+//     //delete[]p;
+//     //string final= get_statistc(p, count(filename));
+//     //cout<<final<<endl;
+//     // for(int i=0; i<count(filename); i++){
+//     //     cout<<p[i];
+//     // }
+//     return 0;
+// }
