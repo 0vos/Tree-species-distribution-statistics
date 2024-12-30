@@ -3,12 +3,9 @@
 #include <thread>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <regex>
-#include <cstring>
 
 #define PORT 8888
 const int BUFFER_SIZE = 8192;
@@ -246,7 +243,7 @@ void console_thread() {
                 cerr << "Error during search: " << e.what() << endl;
             }
         } else if (command == "2") {
-            printf("请输入树名及坐标（示例：松树,(5,5)）其中逗号和括号使用英文字符：");
+            printf("请输入树名及其他信息\n(树名和其他信息之间用英文逗号隔开)，输入exit退出：");
             try {
                 add("tree_info.txt");
             } catch (const exception& e) {
