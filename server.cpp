@@ -209,16 +209,19 @@ void server_thread() {
 void console_thread() {
     string command;
     while (running) {
-        string hint = "<----------树种统计程序---------->\n1. 查找一棵树\n2. 增加一棵树\n3. 删除一棵树\n4. 退出\n请输入功能对应的序号进行操作: ";
+        string hint = "\n<----------树种统计程序---------->\n1. 查找一棵树\n2. 增加一棵树\n3. 删除一棵树\n4. 退出\n请输入功能对应的序号进行操作: ";
         cout << hint << endl;
         cin >> command;
         if(command == "1"){
             // 查找
+            printf("请输入树名,输入exit退出：");
+            search_trees("tree_info.txt");
         }else if(command == "2"){
             printf("请输入树名及坐标（示例：松树,(5,5)）其中逗号和括号使用英文字符：");
             add("tree_info.txt");
         }else if(command == "3"){
             // 删除
+            printf("请输入树名进行删除，输入exit退出：");
             remove_info("tree_info.txt");
         }else if (command == "4") {
             printf("正在退出...\n");

@@ -23,13 +23,13 @@ string get_statistc(string* trees, int length){
 StaForest::StaForest(string *trees, int length){
     size = 0;
     for(size_t i=0;i<length;++i){
-        size_t end_pos = trees[i].find(",", 1);
+        size_t end_pos = trees[i].find(",", 0);
         string name;
         if(i==0){
             name = trees[i].substr(0, end_pos);
         }
         else{
-            name = trees[i].substr(1, end_pos - 1);
+            name = trees[i].substr(0, end_pos);
         }
         if(!name.empty()){
             size++;
