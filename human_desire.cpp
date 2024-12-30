@@ -1,136 +1,126 @@
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <stdexcept>
+
 using namespace std;
-//ÎÒÖ±½Ó½«Ëü×ö³ÉÒ»¸ö¹ÜÀíÏµÍ³£¬ÊÇÕë¶ÔÓÚ×Ö·û´®µÄ¹ÜÀíÏµÍ³£¬ÒòÎªÎÒÃÇÎŞÂÛÊÇ´æ´¢Í¼Æ¬»¹ÊÇÎÄ±¾£¬×îºó¶¼½«Æä×ª»¯Îª×Ö·û´®½øĞĞ
-//¹ş·òÂüÑ¹ËõÁË£¬Õâ¸ö¹ÜÀíÏµÍ³ÊµÏÖÁË¶ÔÓÚ×Ö·û´®µÄÔö£¬É¾£¬¸Ä£¬²é¹¦ÄÜ£¬½«ÌâÄ¿ÖĞµÄ²éÑ¯ºÍ¸üĞÂÈ«²¿ÊµÏÖ
-int repeat(int i, int j, int next[], string in_test){
-    //repeatº¯ÊıÖ÷ÒªÓÃÀ´µİ¹é¼ÆËãnextÊı×é£¬¾ÍÊÇ²ÉÓÃ×î³£¹æµÄnextÊı×éµÄ¼ÆËã·½·¨
-    if(i== 0){
+
+// è¾…åŠ©é€’å½’å‡½æ•°ï¼Œè¿›è¡Œå­—ç¬¦ä¸²åŒ¹é…çš„é‡å¤è®¡ç®—
+int repeat(int i, int j, int next[], string in_test) {
+    if (i == 0) {
         return 0;
-    }else{
+    } else {
         i--;
-        i= next[i];
-        if(in_test[i]== in_test[j]){
+        i = next[i];
+        if (in_test[i] == in_test[j]) {
             return i;
-        }else{
-            i= repeat(i, j, next, in_test);
+        } else {
+            i = repeat(i, j, next, in_test);
             return i;
         }
     }
 }
-string search(string test, string in_test){
-    int next[in_test.size()];//Í¨¹ıÒªÆ¥ÅäµÄ×Ö·û´®µÄ³¤¶ÈÀ´ÉèÖÃnextÊı×éµÄ´óĞ¡
-    for(size_t i=0;i<in_test.size();++i){
-        next[i] = 0;//½«Æä³õÊ¼»¯Îª0
+
+// è¾…åŠ©å‡½æ•°ï¼šä»å†…å®¹ä¸­æå–æ‰€æœ‰åŒ¹é…çš„æ ‘åä½ç½®
+vector<int> find_tree_positions(const string &content, const string &tree_name) {
+    if (tree_name.empty()) {
+        throw invalid_argument("Tree name cannot be empty.");
     }
-    int i=0, j=1;
-    //¼ÆËãnextÊı×é
-    while(j<= in_test.size()){
-        if(in_test[j]== in_test[i]){
-            next[j]= i+1;
-            i++;
-            j++;
-        }else{
-            if(i== 0){
-                j++;
-            }else{
-                i= repeat(i, j, next, in_test);
-            }
+
+    vector<int> positions;
+    size_t pos = 0;
+
+    while (pos < content.size()) {
+        size_t start = content.find(tree_name + ",", pos);
+        if (start == string::npos) break;
+
+        // ç¡®ä¿åŒ¹é…åˆ°çš„æ˜¯å®Œæ•´çš„æ ‘åï¼ˆå‰åéœ€è¦æ˜¯æ¢è¡Œç¬¦æˆ–æ–‡ä»¶å¼€å¤´ï¼‰
+        if ((start == 0 || content[start - 1] == '\n')) {
+            positions.push_back(start);
         }
+        pos = start + tree_name.length() + 1; // è·³è¿‡å½“å‰åŒ¹é…ä½ç½®
     }
-    i=0, j=0;
-    int judge= 0;
-    string posion= "";
-    //ÒÔÏÂÊ¹ÓÃkmpÆ¥ÅäËã·¨
-    while(j<= test.size()){
-        if(i== in_test.size()){//jÈ¥±éÀútestÊı×é£¬iÈ¥±éÀúin_testÊı×é£¬µ±i==in_test.size()Ê±£¬ËµÃ÷ÍêÈ«Æ¥ÅäÉÏÁË
-            judge++;//judgeÓÃÀ´¼ÆÊıÔÚµ±Ç°test×Ö·û´®ÖĞÓĞ¶àÉÙ¸öÓëin_testÏàÍ¬µÄ×Ö·û´®
-            posion+= to_string(j-in_test.size());//positionÓÃÀ´¼ÆÊıin_test×Ö·û´®³öÏÖÔÚtestÖĞµÄÄÄÀï£¬½«Êı×ÖÒÔ×Ö·û´®µÄĞÎÊ½´æ´¢ÆğÀ´  
-            posion+="_";//Ã¿¸öÎ»ÖÃÖ®¼äÓÃ_¸ô¿ª
-            i= 0;//½«iÇå¿Õ£¬¿ªÊ¼ÏÂÒ»´ÎÆ¥Åä
-        }else{
-            if(test[j]== in_test[i]){//µ±×Ö·ûÏàµÈÊ±£¬Æ¥ÅäÏÂÒ»¸ö
-                i++;
-                j++;
-            }else{//²»ÏàµÈÊ±
-                if(i== 0){//¸ù¾İkmpËã·¨£¬Èç¹ûÒÑ¾­ÍË»ØÖÁin_testÍ·²¿£¬Ôò¿ªÊ¼Æ¥ÅätestµÄÏÂÒ»¸ö×Ö·û
-                    j++;
-                }else{
-                    i= next[i-1];//¸ù¾İnextÊı×é£¬Ìø×ªÖÁÏàÓ¦µÄin_testÎ»ÖÃ½øĞĞ±È½Ï
-                    if(test[j]== in_test[i]){//ÏàµÈÊ±Æ¥ÅäÏÂÒ»¸ö
-                        i++;
-                    }
-                    j++;
-                }
-            }
-        }
-    }
-    posion+= to_string(judge);//Ô­positionÖĞµÄĞÅÏ¢Îª¡°Êı×Ö_¡­¡­Êı×Ö_£¬×îºó¸øËü¼ÓÉÏÕâÀïÃæÒ»¹²ÓĞ¶àÉÙ¸öÎ»ÖÃ£¬¼´¶àÉÙ¸öÊı×Ö
-    return posion;//½«Õâ¸ö°üº¬ÁËËùÓĞÎ»ÖÃºÍÎ»ÖÃ¸öÊıµÄ×Ö·û´®·µ»Ø×÷ÎªËÑË÷µÄ½á¹û
+
+    return positions;
 }
-int count_num_of_same(string test, string in_test){//¸Ãº¯ÊıÓÃÀ´½ØÈ¡position×îºóµÄÎ»ÖÃ¸öÊı£¬½«Æä×÷ÎªÊı×Ö·µ»Ø(Ö÷ÒªÊÇÓÃÀ´¹¹½¨Êı×é´óĞ¡)
-    int j=0, k=0;
-    string posion= search(test, in_test);
-    while(posion[j]!= '\0'){
-        if(posion[j]== '_'){
-            k= j;
-        }
-        j++;
+
+// ç»Ÿè®¡æ–‡ä»¶ä¸­ä¸ç»™å®šæ ‘ååŒ¹é…çš„æ¡ç›®æ•°é‡
+int count_num_of_same(const string &content, const string &tree_name) {
+    if (tree_name.empty()) {
+        throw invalid_argument("Tree name cannot be empty.");
     }
-    if(k== 0){
-        return 0;
-    }else{
-        string num_of_posion= posion.substr(k+1);//½ØÈ¡¸öÊı×Ö·û´®
-        return (stoi(num_of_posion));//½«Æä×ª±äÎªÊı×Ö·µ»Ø
+
+    vector<int> positions = find_tree_positions(content, tree_name);
+    return positions.size(); // è¿”å›åŒ¹é…åˆ°çš„æ ‘åæ•°é‡
+}
+
+// å°†åŒ¹é…æ ‘åçš„ä½ç½®å­˜å‚¨åˆ°æ•°ç»„ä¸­
+void position_of_number(int *p, const string &content, const string &tree_name) {
+    if (p == nullptr) {
+        throw invalid_argument("Pointer p cannot be null.");
+    }
+    vector<int> positions = find_tree_positions(content, tree_name);
+    for (size_t i = 0; i < positions.size(); ++i) {
+        p[i] = positions[i];
     }
 }
-void posion_of_number(int *p, string test, string in_test){//¸Ãº¯ÊıÓÃÓÚ½«positionÖĞµÄÎ»ÖÃ×ª»»ÎªÊı×Ö´æ´¢µ½Êı×épÖĞ
-    string posion= search(test, in_test);
-    string temp_posion= "";
-    int j=0,k= 0;
-    while(posion[j]!= '\0'){
-        if(posion[j]!= '_'){//ÒÔ¡°_¡±Îª½çÏŞ½øĞĞÇĞ¸î
-            temp_posion+= posion[j];
-        }else{
-            p[k]= stoi(temp_posion);//½«×Ö·û´®×ª»¯ÎªÊı×Ö½øĞĞ±£´æ
-            k++;
-            temp_posion= "";//»¹Ô­×Ö·û´®Îª¿Õ
+
+// ç”ŸæˆåŒ…å«å‰å5ä¸ªå­—ç¬¦çš„ä¿¡æ¯
+string get_total_part(string test, string in_test) {
+    if (test.empty() || in_test.empty()) {
+        throw invalid_argument("Input strings cannot be empty.");
+    }
+
+    int count = count_num_of_same(test, in_test); // ç»Ÿè®¡åŒ¹é…æ•°é‡
+    if (count == 0) {
+        return ""; // æ— åŒ¹é…åˆ™ç›´æ¥è¿”å›ç©ºå­—ç¬¦ä¸²
+    }
+
+    int *p = new (nothrow) int[count]; // åŠ¨æ€åˆ†é…æ•°ç»„
+    if (!p) {
+        throw runtime_error("Memory allocation failed for position array.");
+    }
+
+    position_of_number(p, test, in_test); // å°†åŒ¹é…ä½ç½®å­˜å…¥æ•°ç»„
+
+    string part1, part2, final_all = "";
+    for (int j = 0; j < count; j++) {
+        // æå–å‰5ä¸ªå’Œå5ä¸ªå­—ç¬¦ï¼Œå¤„ç†è¾¹ç•Œæƒ…å†µ
+        if (p[j] - 5 > 0) {
+            part1 = test.substr(p[j] - 5, 5);
+        } else {
+            part1 = test.substr(0, p[j]);
         }
-        j++;
+
+        if (p[j] + in_test.size() + 5 <= test.size()) {
+            part2 = test.substr(p[j] + in_test.size(), 5);
+        } else {
+            part2 = test.substr(p[j] + in_test.size());
+        }
+
+        // ç»„åˆç»“æœå¹¶è¿½åŠ 
+        final_all += to_string(j + 1) + "." + part1 + "(" + in_test + ")" + part2 + "\n";
     }
-}
-string get_total_part(string test, string in_test){//ÎªÁËÒÔÊµ¼ÊÇé¿öÏà½áºÏÒÔ¼°·½±ãÓÃ»§Ê¹ÓÃ£¬»á½«ËÑË÷µ½µÄin_test×Ö·û´®ÔÚÔ­test×Ö·û´®ÖĞµÄÇ°ºó5¸ö×Ö·û½øĞĞÊä³ö£¬·½±ãÓÃ»§ÖªµÀÔÚÄÄÀï½øĞĞĞŞ¸Ä
-    int count= count_num_of_same(test, in_test);//
-    int *p= new int(count);
-    posion_of_number(p, test, in_test);//½«Î»ÖÃÂ¼Èëµ½pÊı×éÖĞ£¬ÒÔÊı×ÖĞÎÊ½´æ´¢ÆğÀ´
-    if(count== 0){
-        return "";
-    }else{
-        //cout<<"´æÔÚ"<<endl;
-    }
-    int j= 0;
-    string part1, part2;
-    string final_all= "";
-    //ÒÔÏÂÊÇ¶Ôtest×Ö·û´®ÖĞµÄ±ßÔµ½øĞĞ¼ì²â£¬Èç¹ûin_test×Ö·û´®¿¿½ü¿ªÍ·£¬¿ÉÄÜ»á³öÏÖ¿ªÍ·µ½in_testÃ»ÓĞ5¸ö×Ö·ûµÄ¿ÉÄÜ£¬ÄÇÃ´¾ÍÊÇÓĞ¶àÉÙÊä³ö¶àÉÙ£¬Ä©Î²Ò²ÊÇÈç´Ë
-    for(j=0; j<count; j++){
-        if(p[j]-5> 0){
-            part1= test.substr(p[j]-5, 5);
-            if(p[j]+5< test.size()){
-                part2= test.substr(p[j]+in_test.size(), 5);
-            }else{
-                part2= test.substr(p[j]+in_test.size());
-            }
-        }else{
-            part1= test.substr(0, p[j]);
-            if(p[j]+5< test.size()){
-                part2= test.substr(p[j]+in_test.size(), 5);
-            }else{
-                part2= test.substr(p[j]+in_test.size());
-            }
-        }    
-        //cout<<j+1<<"."<<"\033[31m"<<part1<<" "<<"\033[33m"<<part2<<"\033[0m"<<endl;
-        final_all+= (to_string(j+1)+ "."+ part1 +"("+in_test+")"+part2+ "\n");//¼ÓÀ¨ºÅ£¬Ê¹Æä¸ü¼ÓĞÑÄ¿
-    }
-    cout<<final_all;
+
+    delete[] p; // é‡Šæ”¾åŠ¨æ€åˆ†é…çš„å†…å­˜
     return final_all;
 }
+
+// // ä¸»å‡½æ•°ï¼ˆä»…ç”¨äºæµ‹è¯•åŠŸèƒ½ï¼‰
+// int main() {
+//     try {
+//         string test = "oak,apple,oaktree,banana,oaktree,pear,oaktree";
+//         string in_test = "oaktree";
+//         string result = get_total_part(test, in_test);
+
+//         if (!result.empty()) {
+//             cout << "Result:\n" << result;
+//         } else {
+//             cout << "No matches found.\n";
+//         }
+//     } catch (const exception &e) {
+//         cerr << "Error: " << e.what() << endl;
+//     }
+
+//     return 0;
+// }

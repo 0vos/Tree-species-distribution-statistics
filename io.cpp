@@ -1,32 +1,64 @@
 #include<iostream>
 #include<fstream>
 #include<string>
-#include"statistic.cpp"
 #include <locale>
-#include <windows.h>
 #include"human_desire.cpp"
 using namespace std;
-
-int count(string filename){
+int count_useful_lines(string filename) {
     ifstream file(filename);
-    char c;
-    string content= "";
-    int number_of_trees= 0;
-    if(file.is_open()){
-        while(file.get(c)){
-            if(c== '\n'){
-                number_of_trees++;
-            }
-        }
-    }else{
-        cout<<"cannot open the file"<<endl;
+    if (!file.is_open()) {
+        cerr << "Cannot open the file: " << filename << endl;
+        return 0;
     }
-    return number_of_trees;
+
+    int line_count = 0;
+    string line;
+
+    // é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
+    while (getline(file, line)) {
+        if(line.find(",")!=string::npos&&line.find(",")!=0){
+            line_count++;
+        }
+    }
+
+    // // æ£€æŸ¥æœ€åä¸€è¡Œæ˜¯å¦è¢«é—æ¼
+    // if (!line.empty() && file.eof()) {
+    //     line_count++;
+    // }
+
+    file.close();
+    // cout << "Number of useful lines in the file: " << line_count << endl;
+    return line_count;
 }
+int count_lines(string filename) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Cannot open the file: " << filename << endl;
+        return 0;
+    }
+
+    int line_count = 0;
+    string line;
+
+    // é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
+    while (getline(file, line)) {
+        line_count++;
+    }
+
+    // æ£€æŸ¥æœ€åä¸€è¡Œæ˜¯å¦è¢«é—æ¼
+    if (!line.empty() && file.eof()) {
+        line_count++;
+    }
+
+    file.close();
+    // cout << "Number of lines in the file: " << line_count << endl;
+    return line_count;
+}
+
 void add(string filename){
     string addition= "";
     cin>>addition;
-    while(addition.find(',')== -1){
+    while(addition.find(',')==string::npos||addition.find(',')==0){
         cout<<"error input,please input again, exit to exit"<<endl;
         cin>>addition;
         if(addition== "exit"){
@@ -50,137 +82,192 @@ void add(string filename){
     }
 
 }
-void read(string filename, string *p)
-{
+
+void read(string filename, string* p, int max_lines) {
     ifstream file(filename);
-    char c;
-    string content= "";
-    while(file.get(c)){
-        content+= c;
+    if (!file.is_open()) {
+        cerr << "Error opening file: " << filename << endl;
+        return;
     }
-    int i, j=0;
-    for(i=0; i<content.size(); i++){
-        if(content[i]!= '\n'){
-            p[j]+= content[i];
-        }else{
+
+    string line;
+    int j = 0;
+
+    // é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹å¹¶å­˜å‚¨åˆ°æ•°ç»„ä¸­
+    while (getline(file, line) && j < max_lines) {
+        if(line.find(",")!=string::npos&&line.find(",")!=0){
+            p[j] = line;
             j++;
         }
     }
-    
+    file.close();
 }
-void remove_info(string filename){
-    cout<<"please input the tree name to remove, exit to exit"<<endl;
-    ifstream file(filename);
-    char c;
-    string content= "";
-    while(file.get(c)){
-        content+= c;
-    }
-    //½ØÖ¹µ½ÕâÀïÊÇ°ÑÎÄ¼şÄÚÈİÂ¼Èëµ½contentÖĞ
-    string re_move;
-    cin>>re_move;//ÊäÈëÒª×÷ÎªÉ¾³ıµÄ×Ö·û´®
-    //ÕâÀïÅĞ¶¨re_moveµÄÊäÈë¿ÉÒÔÖ±½ÓÍË³öÑ­»·
-    while(re_move!= "exit"){
-        string position= search(content, re_move);
-        int number_of_same_tree= count_num_of_same(content, re_move);//¶ÔÓÚÏàÍ¬µÄÄÚÈİ½øĞĞ¼ÆÊı£¬±ÈÈçËµËÉÊ÷Ò»¹²ÓĞ¶àÉÙ×ø±ê
+void remove_info(string filename) {
+    cout << "Please input the tree name to remove, or type 'exit' to quit." << endl;
 
-        while(number_of_same_tree== 0){//Òì³£ÊäÈë´¦Àí£¬½øĞĞÌáÊ¾£¬¿ÉÒÔÔÚÕâÀï¼ÓÈë±ÈÈçexit¾ÍÍË³ö
-            cout<<"error input, please input again"<<endl;
-            cin>>re_move;
-            position= search(content, re_move);
-            number_of_same_tree= count_num_of_same(content, re_move);
+    string re_move;
+    while (true) {
+        // æç¤ºç”¨æˆ·è¾“å…¥æ ‘å
+        cout << "Tree name: ";
+        cin >> re_move;
+
+        // å¦‚æœè¾“å…¥ "exit"ï¼Œé€€å‡ºç¨‹åº
+        if (re_move == "exit") {
+            cout << "Exiting the program." << endl;
+            break;
         }
-        int *p= new int[number_of_same_tree];//Êı×ép°üº¬ÁË¸ÃËÑË÷ÄÚÈİËùÓĞÎ»ÖÃ£¬×¼±¸½øĞĞÉ¾¸Ä
-        posion_of_number(p, content, re_move);
-        
-        int i;
-        for(i= 0; i<number_of_same_tree; i++){
-            int number= p[i];
-            int end= content.find('\n', p[i]);//Ò»Ö±ÕÒµ½ÕâÒ»ĞĞµÄÄ©Î²£¬ÍêÕûµÄÊä³öÕâÒ»ĞĞ
-            string part= content.substr(number, end- number);
-            cout<<i+1<<"."<<part<<endl;
+
+        // è¯»å–æ–‡ä»¶å†…å®¹
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Cannot open file: " << filename << endl;
+            return;
         }
-        cout<<"please choose where to remove"<<endl;
-        string po;
-        int judge= 0;
-        while(judge== 0){//Òì³£´¦Àí
-            cin>>po;
-            for(int i=0; i<number_of_same_tree; i++){
-                if(po!= to_string(i+1)){
-                    continue;
-                }else{
-                    judge= 1;
-                    break;
-                }
+        string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+        file.close();
+
+        // æ‰¾åˆ°åŒ¹é…çš„æ¡ç›®
+        vector<int> positions; // å­˜å‚¨æ¯ä¸ªåŒ¹é…æ¡ç›®çš„èµ·å§‹ä½ç½®
+        vector<string> entries; // å­˜å‚¨æ¯ä¸ªåŒ¹é…æ¡ç›®çš„å†…å®¹
+        size_t pos = 0;
+
+        while ((pos = content.find(re_move + ",", pos)) != string::npos) {
+            size_t start_pos = pos;
+            // ç¡®ä¿åŒ¹é…åˆ°çš„æ˜¯å®Œæ•´çš„æ ‘åï¼ˆæ ‘åå‰å¿…é¡»æ˜¯æ¢è¡Œç¬¦æˆ–æ–‡ä»¶å¼€å¤´ï¼‰
+            if (start_pos == 0 || content[start_pos - 1] == '\n') {
+                size_t end_pos = content.find('\n', start_pos);
+                if (end_pos == string::npos) end_pos = content.size(); // å¦‚æœæ˜¯æœ€åä¸€è¡Œ
+                string entry = content.substr(start_pos, end_pos - start_pos);
+                positions.push_back(start_pos);
+                entries.push_back(entry);
             }
-            if(judge== 0){
-                cout<<"error input"<<endl;
-            }
-            
+            pos += re_move.length() + 1; // è·³è¿‡å½“å‰åŒ¹é…ä½ç½®
         }
-        int number= p[stoi(po)-1];
-        string part1= content.substr(0, number);//·ìºÏÁ½¸ö×Ö·û´®
-        int end= content.find('\n', number);
-        string part2= "";
-        if(end== -1){
-            part1= content.substr(0, number-1);
-            end= content.size();
-            part2= content.substr(end);
-        }else{
-            part2= content.substr(end+1);
+
+        if (positions.empty()) {
+            cout << "Error: Invalid tree name. Please try again." << endl;
+            continue;
         }
-        //cout<<end<<endl;
-        content= part1+part2;
-        //cout<<content;
+
+        // æ˜¾ç¤ºåŒ¹é…çš„æ ‘æ¡ç›®
+        for (size_t i = 0; i < entries.size(); ++i) {
+            cout << i + 1 << ". " << entries[i] << endl;
+        }
+
+        cout << "Please select a number to delete, or type 'exit' to cancel: ";
+        string choice;
+        cin >> choice;
+
+        if (choice == "exit") {
+            cout << "Canceling deletion." << endl;
+            continue;
+        }
+
+        // æ£€æŸ¥è¾“å…¥çš„ç¼–å·æ˜¯å¦æœ‰æ•ˆ
+        int selected_index = -1;
+        try {
+            selected_index = stoi(choice) - 1;
+        } catch (invalid_argument&) {
+            cout << "Error: Invalid input. Please enter a valid number." << endl;
+            continue;
+        }
+
+        if (selected_index < 0 || selected_index >= static_cast<int>(positions.size())) {
+            cout << "Error: Invalid selection. Try again." << endl;
+            continue;
+        }
+
+        // åˆ é™¤é€‰ä¸­çš„æ¡ç›®
+        size_t start_pos = positions[selected_index];
+        size_t end_pos = content.find('\n', start_pos);
+        if (end_pos == string::npos) {
+            // å¦‚æœæ˜¯æœ€åä¸€è¡Œï¼Œåˆ é™¤åˆ°æ–‡ä»¶æœ«å°¾ï¼ŒåŒ…æ‹¬å¯èƒ½çš„æ¢è¡Œç¬¦
+            content.erase(start_pos-1);
+        } else {
+            content.erase(start_pos, end_pos - start_pos + 1); // åˆ é™¤åŒ…å«æ¢è¡Œç¬¦çš„æ•´æ¡è®°å½•
+        }
+
+        // æ›´æ–°æ–‡ä»¶å†…å®¹
         ofstream ofile(filename);
-        ofile<<content;
-        cout<<"deleted, please input tree name you want to remove, exit to exit"<<endl;
-        cin>>re_move;
-    }
-    //return position;
-}
-void search_trees(string filename){
-    cout<<"please input tree name to search, exit to exit"<<endl;
-    ifstream file(filename);
-    char c;
-    string content= "";
-    while(file.get(c)){
-        content+= c;
-    }
-    string re_move;
-    cin>>re_move;
-    //ÕâÀïÅĞ¶¨re_moveµÄÊäÈë¿ÉÒÔÖ±½ÓÍË³öÑ­»·
+        if (!ofile.is_open()) {
+            cerr << "Error: Unable to write to file." << endl;
+            break;
+        }
+        ofile << content;
+        ofile.close();
 
-    while(re_move!= "exit"){
-        string position= search(content, re_move);
-        int number_of_same_tree= count_num_of_same(content, re_move);
-        while(number_of_same_tree== 0){
-            cout<<"don't, exit"<<endl;
-            cin>>re_move;
-            position= search(content, re_move);
-            number_of_same_tree= count_num_of_same(content, re_move);
-        }
-        int *p= new int[number_of_same_tree];
-        posion_of_number(p, content, re_move);
-        
-        for(int i= 0; i<number_of_same_tree; i++){
-            int number= p[i];
-            int end= content.find('\n', p[i]);
-            string part= content.substr(number, end- number);
-            cout<<i+1<<"."<<part<<endl;
-        }
-        cout<<"please input tree name to search, exit to exit"<<endl;
-        cin>>re_move;
+        cout << "Deleted successfully." << endl;
     }
 }
-int main(){
-    string filename= "tree_info.txt";
-    string *p= new string[count(filename)];
-    search_trees(filename);
-    //remove_info(filename);
-    //read(filename, p);
-    //add(filename);
-    //delete[]p;
-    
-    return 0;
+void search_trees(string filename) {
+    cout << "Please input tree name to search, or type 'exit' to quit." << endl;
+
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Cannot open file: " << filename << endl;
+        return;
+    }
+
+    string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+    file.close();
+
+    string re_move;
+    while (true) {
+        cout << "Tree name: ";
+        cin >> re_move;
+
+        if (re_move == "exit") {
+            cout << "Exiting the search." << endl;
+            break;
+        }
+
+        // éªŒè¯è¾“å…¥çš„æ ‘åæ˜¯å¦æœ‰æ•ˆ
+        bool valid_tree = false;
+        size_t pos = 0;
+        while ((pos = content.find('\n', pos)) != string::npos) {
+            size_t start = content.rfind('\n', pos - 1) + 1;
+            size_t comma_pos = content.find(',', start);
+            string tree_name = content.substr(start, comma_pos - start);
+            if (tree_name == re_move) {
+                valid_tree = true;
+                break;
+            }
+            pos++;
+        }
+
+        if (!valid_tree) {
+            cout << "Error: Invalid tree name. Please try again." << endl;
+            continue;
+        }
+
+        // æœç´¢å¹¶æ˜¾ç¤ºåŒ¹é…çš„æ ‘å
+        int number_of_same_tree = count_num_of_same(content, re_move);
+        if (number_of_same_tree == 0) {
+            cout << "No matching trees found for the name: " << re_move << endl;
+        } else {
+            int* p = new int[number_of_same_tree];
+            position_of_number(p, content, re_move);
+
+            // æ˜¾ç¤ºåŒ¹é…çš„æ ‘æ¡ç›®
+            for (int i = 0; i < number_of_same_tree; i++) {
+                int start_pos = p[i];
+                int end_pos = content.find('\n', start_pos);
+                string entry = content.substr(start_pos, end_pos - start_pos);
+                cout << i + 1 << ". " << entry << endl;
+            }
+
+            delete[] p; // é‡Šæ”¾åŠ¨æ€æ•°ç»„å†…å­˜
+        }
+    }
 }
+// int main(){
+//     string filename= "tree_info.txt";
+//     string *p= new string[count(filename)];
+//     search_trees(filename);
+//     //remove_info(filename);
+//     //read(filename, p);
+//     //add(filename);
+//     //delete[]p;
+    
+//     return 0;
+// }

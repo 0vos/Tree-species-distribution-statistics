@@ -30,9 +30,9 @@ string get_mime_type(const string& file_path) {
 // 用于返回GET的统计数据
 void send_statistic(int client_socket) {
     string file_name= "tree_info.txt";
-    string *trees = new string[count(file_name)];
-    read(file_name, trees);
-    string raw = get_statistc(trees, count(file_name));
+    string *trees = new string[count_useful_lines(file_name)];
+    read(file_name, trees, count_lines(file_name));
+    string raw = get_statistic(trees, count_useful_lines(file_name));
     string response_body = statistic_string2json(raw);
     // cout << response_body << endl;
     // 构造 HTTP 响应
@@ -87,25 +87,50 @@ void serve_static_file(int client_socket, const string& file_path) {
 
 // 处理客户端请求
 void serve_request(int client_socket, const string& request) {
-    if(request.find("GET /statistic") != string::npos){
-        send_statistic(client_socket);
-    }else if (request.find("GET ") != string::npos) {
-        // 处理静态文件请求
-        size_t pos = request.find("GET ");
-        size_t path_end = request.find(" ", pos + 4);
-        string file_path = request.substr(pos + 4, path_end - pos - 4);
+    try {
+        if (request.find("GET /statistic") != string::npos) {
+            send_statistic(client_socket);
+        } else if (request.find("GET ") != string::npos) {
+            size_t pos = request.find("GET ");
+            size_t path_end = request.find(" ", pos + 4);
+            string file_path = request.substr(pos + 4, path_end - pos - 4);
 
-        if (file_path == "/") {
-            file_path = "index.html"; // 默认首页
+            if (file_path == "/") {
+                file_path = "index.html"; // 默认首页
+            } else {
+                file_path = file_path.substr(1); // 去掉开头的 "/"
+            }
+
+            // 检查路径是否包含危险字符
+            if (file_path.find("..") != string::npos) {
+                string error_response =
+                    "HTTP/1.1 400 Bad Request\r\n\r\n";
+                send(client_socket, error_response.c_str(), error_response.length(), 0);
+                close(client_socket);
+                return;
+            }
+
+            serve_static_file(client_socket, file_path);
         } else {
-            file_path = file_path.substr(1); // 去掉开头的 "/"
+            // 如果请求方法不为 GET，返回 405 错误
+            string error_response =
+                "HTTP/1.1 405 Method Not Allowed\r\n"
+                "Content-Length: 0\r\n\r\n";
+            send(client_socket, error_response.c_str(), error_response.length(), 0);
+            close(client_socket);
         }
-
-        serve_static_file(client_socket, file_path);
-    }
-    else {
-        // 如果请求方法不为 GET 或 POST，返回 400 错误
-        string error_response = "HTTP/1.1 400 Bad Request\r\n\r\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Error while serving request: " << e.what() << std::endl;
+        string error_response =
+            "HTTP/1.1 500 Internal Server Error\r\n"
+            "Content-Length: 0\r\n\r\n";
+        send(client_socket, error_response.c_str(), error_response.length(), 0);
+        close(client_socket);
+    } catch (...) {
+        std::cerr << "Unknown error occurred while serving request." << std::endl;
+        string error_response =
+            "HTTP/1.1 500 Internal Server Error\r\n"
+            "Content-Length: 0\r\n\r\n";
         send(client_socket, error_response.c_str(), error_response.length(), 0);
         close(client_socket);
     }
@@ -184,7 +209,7 @@ void server_thread() {
             continue;
         }
 
-        std::cout << "Request received. Length: " << request.length() << " bytes\n";
+        // std::cout << "Request received. Length: " << request.length() << " bytes\n";
 
         try {
             serve_request(new_socket, request); // 调用处理函数
@@ -212,18 +237,29 @@ void console_thread() {
         string hint = "\n<----------树种统计程序---------->\n1. 查找一棵树\n2. 增加一棵树\n3. 删除一棵树\n4. 退出\n请输入功能对应的序号进行操作: ";
         cout << hint << endl;
         cin >> command;
-        if(command == "1"){
-            // 查找
+
+        if (command == "1") {
             printf("请输入树名,输入exit退出：");
-            search_trees("tree_info.txt");
-        }else if(command == "2"){
+            try {
+                search_trees("tree_info.txt");
+            } catch (const exception& e) {
+                cerr << "Error during search: " << e.what() << endl;
+            }
+        } else if (command == "2") {
             printf("请输入树名及坐标（示例：松树,(5,5)）其中逗号和括号使用英文字符：");
-            add("tree_info.txt");
-        }else if(command == "3"){
-            // 删除
+            try {
+                add("tree_info.txt");
+            } catch (const exception& e) {
+                cerr << "Error during add: " << e.what() << endl;
+            }
+        } else if (command == "3") {
             printf("请输入树名进行删除，输入exit退出：");
-            remove_info("tree_info.txt");
-        }else if (command == "4") {
+            try {
+                remove_info("tree_info.txt");
+            } catch (const exception& e) {
+                cerr << "Error during remove: " << e.what() << endl;
+            }
+        } else if (command == "4") {
             printf("正在退出...\n");
             running = false; // 让服务器线程退出
         } else {
