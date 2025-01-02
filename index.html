@@ -13,7 +13,7 @@
         async function fetchDataAndRenderChart() {
             try {
                 // 从 localhost:8888 获取数据
-                const response = await fetch('http://localhost:8888/statistic');
+                const response = await fetch('http://localhost:8192/statistic');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
