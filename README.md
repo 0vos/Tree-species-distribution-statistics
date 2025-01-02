@@ -14,7 +14,7 @@
 1. 运行 server.cpp
 2. 在浏览器（比如Chrome）中输入：
 ```
-localhost:8888
+localhost:8192
 ```
 ### 🙋如果你有疑问
 请及时联系Qianqian，无论是什么问题。期待良好的合作
