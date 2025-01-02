@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-#define PORT 8888
+#define PORT 8192
 const int BUFFER_SIZE = 8192;
 std::atomic<bool> running(true);
 using namespace std;
