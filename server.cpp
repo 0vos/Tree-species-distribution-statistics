@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-#define PORT 8888
+#define PORT 8192
 const int BUFFER_SIZE = 8192;
 std::atomic<bool> running(true);
 using namespace std;
@@ -231,36 +231,35 @@ void server_thread() {
 void console_thread() {
     string command;
     while (running) {
-        string hint = "\n<----------树种统计程序---------->\n1. 查找一棵树\n2. 增加一棵树\n3. 删除一棵树\n4. 退出\n请输入功能对应的序号进行操作: ";
+        string hint = "\n<----------树种统计程序---------->\n*         1. 查找一棵树          *\n*         2. 增加一棵树          *\n*         3. 删除一棵树          *\n*         4. 退出                *\n请输入功能对应的序号进行操作: ";
         cout << hint << endl;
         cin >> command;
 
         if (command == "1") {
-            printf("请输入树名,输入exit退出：");
             try {
                 search_trees("tree_info.txt");
             } catch (const exception& e) {
-                cerr << "Error during search: " << e.what() << endl;
+                cerr << "搜索时出现错误：" << e.what() << endl;
             }
         } else if (command == "2") {
             printf("请输入树名及其他信息\n(树名和其他信息之间用英文逗号隔开)，输入exit退出：");
             try {
                 add("tree_info.txt");
             } catch (const exception& e) {
-                cerr << "Error during add: " << e.what() << endl;
+                cerr << "增加时出现错误：" << e.what() << endl;
             }
         } else if (command == "3") {
             printf("请输入树名进行删除，输入exit退出：");
             try {
                 remove_info("tree_info.txt");
             } catch (const exception& e) {
-                cerr << "Error during remove: " << e.what() << endl;
+                cerr << "删除时出现错误：" << e.what() << endl;
             }
         } else if (command == "4") {
             printf("正在退出...\n");
             running = false; // 让服务器线程退出
         } else {
-            cout << "Unknown command: " << command << endl;
+            cout << "未知命令:" << command << endl;
         }
     }
 }
@@ -275,7 +274,7 @@ int main() {
     // 等待两个线程完成
     console.join();
     server.join();
-    printf("finish\n");
+    printf("结束\n");
 
     return 0;
 }
