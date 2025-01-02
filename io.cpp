@@ -7,7 +7,7 @@ using namespace std;
 int count_useful_lines(string filename) {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Cannot open the file: " << filename << endl;
+        cerr << "无法打开文件" << filename << endl;
         return 0;
     }
 
@@ -33,7 +33,7 @@ int count_useful_lines(string filename) {
 int count_lines(string filename) {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Cannot open the file: " << filename << endl;
+        cerr << "无法打开文件" << filename << endl;
         return 0;
     }
 
@@ -59,7 +59,7 @@ void add(string filename){
     string addition= "";
     cin>>addition;
     while(addition.find(',')==string::npos||addition.find(',')==0){
-        cout<<"error input,please input again, exit to exit"<<endl;
+        cout<<"无效条目，请重新按格式输入，或者输入exit退出"<<endl;
         cin>>addition;
         if(addition== "exit"){
             return;
@@ -73,12 +73,12 @@ void add(string filename){
     }
     content= content+'\n'+ addition; 
     //cout<<content;
-    cout<<"added"<<endl;
+    cout<<"已添加"<<endl;
     ofstream ofile(filename);
     if(ofile.is_open()){
         ofile<<content;
     }else{
-        cout<<"cannot open the file"<<endl;
+        cout<<"无法打开文件！"<<endl;
     }
 
 }
@@ -86,7 +86,7 @@ void add(string filename){
 void read(string filename, string* p, int max_lines) {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Error opening file: " << filename << endl;
+        cerr << "无法打开文件：" << filename << endl;
         return;
     }
 
@@ -103,24 +103,24 @@ void read(string filename, string* p, int max_lines) {
     file.close();
 }
 void remove_info(string filename) {
-    cout << "Please input the tree name to remove, or type 'exit' to quit." << endl;
+    cout << "请输入一个树名来删除，或者输入exit退出删除程序" << endl;
 
     string re_move;
     while (true) {
         // 提示用户输入树名
-        cout << "Tree name: ";
+        cout << "树名：";
         cin >> re_move;
 
         // 如果输入 "exit"，退出程序
         if (re_move == "exit") {
-            cout << "Exiting the program." << endl;
+            cout << "退出删除程序！" << endl;
             break;
         }
 
         // 读取文件内容
         ifstream file(filename);
         if (!file.is_open()) {
-            cerr << "Cannot open file: " << filename << endl;
+            cerr << "无法打开文件：" << filename << endl;
             return;
         }
         string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
@@ -145,7 +145,7 @@ void remove_info(string filename) {
         }
 
         if (positions.empty()) {
-            cout << "Error: Invalid tree name. Please try again." << endl;
+            cout << "无效树名，请重新输入！" << endl;
             continue;
         }
 
@@ -154,12 +154,12 @@ void remove_info(string filename) {
             cout << i + 1 << ". " << entries[i] << endl;
         }
 
-        cout << "Please select a number to delete, or type 'exit' to cancel: ";
+        cout << "请选择一个序号来删除，或者输入exit取消删除：";
         string choice;
         cin >> choice;
 
         if (choice == "exit") {
-            cout << "Canceling deletion." << endl;
+            cout << "取消删除！" << endl;
             continue;
         }
 
@@ -168,12 +168,12 @@ void remove_info(string filename) {
         try {
             selected_index = stoi(choice) - 1;
         } catch (invalid_argument&) {
-            cout << "Error: Invalid input. Please enter a valid number." << endl;
+            cout << "无效输入，请输入一个有效的数字！" << endl;
             continue;
         }
 
         if (selected_index < 0 || selected_index >= static_cast<int>(positions.size())) {
-            cout << "Error: Invalid selection. Try again." << endl;
+            cout << "无效选择，请重新输入！" << endl;
             continue;
         }
 
@@ -190,21 +190,21 @@ void remove_info(string filename) {
         // 更新文件内容
         ofstream ofile(filename);
         if (!ofile.is_open()) {
-            cerr << "Error: Unable to write to file." << endl;
+            cerr << "无法写到文件中！" << endl;
             break;
         }
         ofile << content;
         ofile.close();
 
-        cout << "Deleted successfully." << endl;
+        cout << "删除成功！" << endl;
     }
 }
 void search_trees(string filename) {
-    cout << "Please input tree name to search, or type 'exit' to quit." << endl;
+    cout << "请输入树名进行查找，输入exit退出" << endl;
 
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Cannot open file: " << filename << endl;
+        cerr << "无法打开文件：" << filename << endl;
         return;
     }
 
@@ -213,11 +213,11 @@ void search_trees(string filename) {
 
     string re_move;
     while (true) {
-        cout << "Tree name: ";
+        cout << "树名：";
         cin >> re_move;
 
         if (re_move == "exit") {
-            cout << "Exiting the search." << endl;
+            cout << "退出查找程序！" << endl;
             break;
         }
 
@@ -236,14 +236,14 @@ void search_trees(string filename) {
         }
 
         if (!valid_tree) {
-            cout << "Error: Invalid tree name. Please try again." << endl;
+            cout << "无效树名，请重新输入：" << endl;
             continue;
         }
 
         // 搜索并显示匹配的树名
         int number_of_same_tree = count_num_of_same(content, re_move);
         if (number_of_same_tree == 0) {
-            cout << "No matching trees found for the name: " << re_move << endl;
+            cout << "对树名：" << re_move << " 没有匹配的树！" << endl;
         } else {
             int* p = new int[number_of_same_tree];
             position_of_number(p, content, re_move);
