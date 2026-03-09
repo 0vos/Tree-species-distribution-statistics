@@ -1,22 +1,22 @@
 # Tree-species-distribution-statistics
-2024 Winter 数据结构课程设计
+2024 Winter Data Structure Course Design
 ```
-15、树种分布统计问题
-【问题描述】
-科学家根据某森林地区的卫星云图标记处该地区的树种分布情况。树木名称存放在文本文件中，每一行存放一种数据名称和该树的其它信息。树种分布问题要求根据文本文件信息统计出各种树种在该森林地区所占的比例。
-【设计要求】
-设计基于STL的散列表的树种分布统计程序。
-（1）采用STL的散列表等数据结构。
-（2）应用基本运算，实现算法求解。
+15. Tree Species Distribution Statistics Problem
+[Problem Description]
+Scientists marked the distribution of tree species in a forest area based on satellite imagery. The names of the trees are stored in a text file, with each line containing a tree species name and other related information. The tree species distribution problem requires calculating the proportion of each tree species in the forest area based on the text file.
+[Design Requirements]
+Design a tree species distribution statistics program based on an STL hash table.
+(1) Utilize data structures such as STL hash tables.
+(2) Apply basic operations to implement the algorithm.
 ```
-## 运行
-生成饼图（但是主要的增删查工作在io.cpp的控制台）
-1. 运行 server.cpp
-2. 在浏览器（比如Chrome）中输入：
+## Run
+Generate a pie chart (but the main insert, delete, and query operations are handled in the console of io.cpp)
+1. Run server.cpp
+2. Enter the following in a browser (e.g., Chrome):
 ```
 localhost:8192
 ```
-### 🙋如果你有疑问
-请及时联系Qianqian，无论是什么问题。期待良好的合作
-### 为项目做贡献
-请提交修改内容或者新增加的内容到新的分支，不要直接修改主分支
+### 🙋 If you have any questions
+Please contact Qianqian promptly, regardless of the issue. Looking forward to a great collaboration.
+### Contributing to the project
+Please submit modifications or new additions to a new branch. Do not modify the main branch directly.
